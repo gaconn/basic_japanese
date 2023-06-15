@@ -5,13 +5,18 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/quan12xz/basic_japanese/pkg/setting"
 	"log"
+	"time"
 )
 
-var db *gorm.DB
+type DBUtil struct {
+	DB *gorm.DB
+}
 
-func DBConnect() {
+var DBUtilInstance = &DBUtil{}
+
+func DBSetup() {
 	var err error
-	db, err = gorm.Open(setting.DatabaseSetting.Type, fmt.Sprintf("%s:%s@/%s?charset=%s&parseTime=True&loc=Local",
+	DBUtilInstance.DB, err = gorm.Open(setting.DatabaseSetting.Type, fmt.Sprintf("%s:%s@/%s?charset=%s&parseTime=True&loc=Local",
 		setting.DatabaseSetting.User,
 		setting.DatabaseSetting.Password,
 		setting.DatabaseSetting.Name,
@@ -22,4 +27,23 @@ func DBConnect() {
 		log.Fatal(err)
 	}
 
+	DBUtilInstance.DB.Callback().Create().Replace("gorm:update_time_stamp", updateTimeStampCreateCallback)
+}
+
+func updateTimeStampCreateCallback(scope *gorm.Scope) {
+	if !scope.HasError() {
+		nowTime := time.Now().Unix()
+
+		if createTimeField, ok := scope.FieldByName("CreateOn"); ok {
+			if createTimeField.IsBlank {
+				createTimeField.Set(nowTime)
+			}
+		}
+
+		if updateTimeField, ok := scope.FieldByName("UpdateOn"); ok {
+			if updateTimeField.IsBlank {
+				updateTimeField.Set(nowTime)
+			}
+		}
+	}
 }

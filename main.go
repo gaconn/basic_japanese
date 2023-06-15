@@ -5,12 +5,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/quan12xz/basic_japanese/pkg/setting"
 	"github.com/quan12xz/basic_japanese/routes"
+	"github.com/quan12xz/basic_japanese/utils"
 	"log"
 	"net/http"
 )
 
 func init() {
 	setting.Setup()
+	utils.DBSetup()
 }
 
 func main() {

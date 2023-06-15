@@ -1,5 +1,7 @@
 package models
 
+import "github.com/quan12xz/basic_japanese/utils"
+
 type Alphabet struct {
 	ID           int        `json:"id"`
 	Word         string     `json:"word"`
@@ -15,6 +17,15 @@ type Alphabet struct {
 	VariantList  []Alphabet `json:"variant"`
 }
 
-func GetAlphabets() (*[]Alphabet, error) {
+var db = utils.DBUtilInstance.DB
 
+func GetAllKatakana() (*[]Alphabet, error) {
+	var list []Alphabet
+	db.Find(&list)
+
+	return &list, nil
+}
+
+func CreateKatakana(alphabet *Alphabet) (*Alphabet, error) {
+	
 }
