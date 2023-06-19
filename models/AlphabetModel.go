@@ -1,6 +1,8 @@
 package models
 
-import "github.com/quan12xz/basic_japanese/utils"
+import (
+	"github.com/quan12xz/basic_japanese/utils"
+)
 
 type Alphabet struct {
 	ID           int        `json:"id"`
@@ -27,5 +29,9 @@ func GetAllKatakana() (*[]Alphabet, error) {
 }
 
 func CreateKatakana(alphabet *Alphabet) (*Alphabet, error) {
-	
+	result := db.Create(alphabet)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return alphabet, nil
 }
