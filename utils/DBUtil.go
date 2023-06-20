@@ -2,48 +2,27 @@ package utils
 
 import (
 	"fmt"
-	"github.com/jinzhu/gorm"
 	"github.com/quan12xz/basic_japanese/pkg/setting"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 	"log"
-	"time"
 )
 
-type DBUtil struct {
-	DB *gorm.DB
-}
-
-var DBUtilInstance = &DBUtil{}
+var DB *gorm.DB
 
 func DBSetup() {
 	var err error
-	DBUtilInstance.DB, err = gorm.Open(setting.DatabaseSetting.Type, fmt.Sprintf("%s:%s@/%s?charset=%s&parseTime=True&loc=Local",
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=True&loc=Local",
 		setting.DatabaseSetting.User,
 		setting.DatabaseSetting.Password,
+		setting.DatabaseSetting.Host,
+		setting.DatabaseSetting.Port,
 		setting.DatabaseSetting.Name,
 		setting.DatabaseSetting.Charset,
-	))
+	)
+	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	if err != nil {
 		log.Fatal(err)
-	}
-
-	DBUtilInstance.DB.Callback().Create().Replace("gorm:update_time_stamp", updateTimeStampCreateCallback)
-}
-
-func updateTimeStampCreateCallback(scope *gorm.Scope) {
-	if !scope.HasError() {
-		nowTime := time.Now().Unix()
-
-		if createTimeField, ok := scope.FieldByName("CreateOn"); ok {
-			if createTimeField.IsBlank {
-				createTimeField.Set(nowTime)
-			}
-		}
-
-		if updateTimeField, ok := scope.FieldByName("UpdateOn"); ok {
-			if updateTimeField.IsBlank {
-				updateTimeField.Set(nowTime)
-			}
-		}
 	}
 }

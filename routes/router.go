@@ -11,6 +11,7 @@ func InitRouter() *gin.Engine {
 	r.Use(gin.Recovery())
 
 	r.GET("/", controller.GetKatakana)
+	r.POST("/", controller.AddKatakana)
 
 	return r
 }

@@ -1,0 +1,18 @@
+version: '3.0'
+
+services:
+  db: 
+    image: mysql:latest
+    environment:
+      - MYSQL_ROOT_PASSWORD=123456
+    ports:
+      - 4406:3306
+    volumes:
+      - db-store:/var/lib/mysql
+    restart: unless-stopped
+    networks:
+      - host
+networks:
+  host:
+volumes:
+  db-store:
