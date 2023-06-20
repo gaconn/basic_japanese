@@ -1,67 +1,46 @@
 package controller
 
 import (
-	"log"
-	"strconv"
-
 	"github.com/gin-gonic/gin"
 	"github.com/quan12xz/basic_japanese/models"
 	"github.com/quan12xz/basic_japanese/utils"
+	"strconv"
+	"strings"
 )
 
-func GetAllKatakana(r *gin.Context) {
-	result, err := models.GetAllKatakana()
+var TypeWord = map[string]int{"HIRAGANA": 1, "HIRAGANA_COMBINE": 11, "KATAKANA": 2, "KATAKANA_COMBINE": 22, "KANJI": 3}
+
+func GetAllByType(r *gin.Context) {
+	strType := strings.ToUpper(r.Param("type"))
+	intType, ok := TypeWord[strType]
+	if !ok {
+		utils.SendResponse(r, 400, "Type not exist", nil)
+	}
+	result, err := models.GetWordByType(intType)
 	if err != nil {
 		utils.SendResponse(r, 400, "Unsuccessfully", nil)
+		return
 	}
 	utils.SendResponse(r, 200, "Successfully", result)
 }
 
-func GetByIDKatakana(r *gin.Context) {
+func GetByID(r *gin.Context) {
 	strID := r.Param("id")
 	intID, err := strconv.ParseInt(strID, 10, 64)
 
 	if err != nil {
 		utils.SendResponse(r, 400, "ID invalid", nil)
 	}
-	result, err := models.GetByIDKatakana(intID)
+	result, err := models.GetWordByID(intID)
 
 	if err != nil {
 		utils.SendResponse(r, 400, "Unsuccessfully", nil)
+		return
 	}
 	utils.SendResponse(r, 200, "Successfully", result)
 }
 
-func AddKatakana(r *gin.Context) {
-	var alphabet = &models.Alphabet{}
-	err := r.Bind(alphabet)
-	if err != nil {
-		log.Fatal(err)
-	}
-	data, err := models.CreateKatakana(alphabet)
-	if err != nil {
-		utils.SendResponse(r, 304, err.Error(), nil)
-	}
-	utils.SendResponse(r, 201, "Add new katakana work successfully", data)
-}
-
-func DeleteKatakana(r *gin.Context) {
-	strID := r.Param("id")
-	intID, err := strconv.ParseInt(strID, 10, 64)
-
-	if err != nil {
-		utils.SendResponse(r, 400, "ID invalid", nil)
-	}
-
-	result, err := models.DeleteKatakana(intID)
-
-	if err != nil {
-		utils.SendResponse(r, 400, "Unsuccessfully", nil)
-	}
-	utils.SendResponse(r, 200, "Successfully", result)
-}
-
-func UpdateKatakana(r *gin.Context) {
+func Update(r *gin.Context) {
 	var err error
 
 	var alphabet = models.Alphabet{}
@@ -71,5 +50,10 @@ func UpdateKatakana(r *gin.Context) {
 		utils.SendResponse(r, 400, "Data invalid", nil)
 	}
 
-	models.UpdateKatakana(&alphabet)
+	result, err := models.UpdateWord(&alphabet)
+	if err != nil {
+		utils.SendResponse(r, 400, "Unsuccessfully", nil)
+		return
+	}
+	utils.SendResponse(r, 200, "Successfully", result)
 }
