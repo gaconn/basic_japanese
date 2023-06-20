@@ -18,6 +18,9 @@ type Alphabet struct {
 	SimilarSound []Alphabet `gorm:"many2many:similar_sound"json:"similar_sound"`
 	VariantList  []Alphabet `gorm:"many2many:variant"json:"variant"`
 }
+
+var TypeWord = map[string]int{"HIRAGANA": 1, "HIRAGANA_COMBINE": 11, "KATAKANA": 2, "KATAKANA_COMBINE": 22, "KANJI": 3}
+
 type ValidateError struct {
 	Type    string
 	Message string
@@ -26,8 +29,10 @@ type ValidateError struct {
 
 func GetAllKatakana() (*[]Alphabet, error) {
 	var list []Alphabet
-	db.Find(&list)
-
+	result := db.Where("type= ?", TypeWord["KATAKANA"]).Find(&list)
+	if result.Error != nil {
+		return nil, result.Error
+	}
 	return &list, nil
 }
 

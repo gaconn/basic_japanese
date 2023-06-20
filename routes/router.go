@@ -9,9 +9,11 @@ func InitRouter() *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
-
-	r.GET("/", controller.GetKatakana)
-	r.POST("/", controller.AddKatakana)
+	kataGroup := r.Group("/word/katakana")
+	{
+		kataGroup.GET("/", controller.GetKatakana)
+		kataGroup.POST("/", controller.AddKatakana)
+	}
 
 	return r
 }

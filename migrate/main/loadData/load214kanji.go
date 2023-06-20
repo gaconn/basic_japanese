@@ -55,7 +55,7 @@ func getStroke(v string) int {
 	return result
 }
 
-var Type = map[string]int{"HIRAGANA": 1, "KATAKANA": 2, "KANJI": 3}
+var Type = map[string]int{"HIRAGANA": 1, "HIRAGANA_COMBINE": 11, "KATAKANA": 2, "KATAKANA_COMBINE": 22, "KANJI": 3}
 
 func getData(i map[string][]string, stroke int) []models.Alphabet {
 	var result []models.Alphabet
