@@ -36,6 +36,15 @@ func GetAllKatakana() (*[]Alphabet, error) {
 	return &list, nil
 }
 
+func GetByIDKatakana(id int64) (*Alphabet, error) {
+	var a Alphabet
+	result := db.Where("type= ? AND id = ?", TypeWord["KATAKANA"], id).First(&a)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &a, nil
+}
+
 func CreateKatakana(alphabet *Alphabet) (*Alphabet, error) {
 	if db == nil {
 		return nil, nil
@@ -47,6 +56,22 @@ func CreateKatakana(alphabet *Alphabet) (*Alphabet, error) {
 	return alphabet, nil
 }
 
+func DeleteKatakana(id int64) (*Alphabet, error) {
+	var alphabet = Alphabet{}
+	result := db.Delete(&alphabet, id)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &alphabet, nil
+}
+
+func UpdateKatakana(a *Alphabet) (*Alphabet, error) {
+	result := db.Save(a)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return a, nil
+}
 func ValidateAlphabet(ap *Alphabet) *[]ValidateError {
 	var err []ValidateError
 	if ap.Word == "" {
