@@ -9,6 +9,7 @@ import (
 )
 
 var db *gorm.DB
+var NumberRecordLimit = 30
 
 func DBSetup() {
 	var err error

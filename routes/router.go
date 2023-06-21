@@ -9,11 +9,20 @@ func InitRouter() *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
-	kataGroup := r.Group("/word")
+	alphabetGroup := r.Group("/word")
 	{
-		kataGroup.GET("/type/:type", controller.GetAllByType)
-		kataGroup.GET("/:id", controller.GetByID)
-		kataGroup.PUT("/", controller.Update)
+		alphabetGroup.GET("/type/:type", controller.GetAllByType)
+		alphabetGroup.GET("/:id", controller.GetByID)
+		alphabetGroup.PUT("/", controller.Update)
+	}
+
+	lessonGroup := r.Group("/lesson")
+	{
+		lessonGroup.GET("/", controller.GetLessons)
+		lessonGroup.GET("/:id", controller.GetLesson)
+		lessonGroup.POST("/", controller.AddLesson)
+		lessonGroup.PUT("/", controller.UpdateLesson)
+		lessonGroup.DELETE("/:id", controller.DeleteLesson)
 	}
 
 	return r

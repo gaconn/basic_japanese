@@ -6,7 +6,6 @@ import (
 	"github.com/quan12xz/basic_japanese/migrate/migrateSetting"
 	migrateModel "github.com/quan12xz/basic_japanese/migrate/models"
 	"github.com/quan12xz/basic_japanese/models"
-	"log"
 )
 
 type Database struct {
@@ -22,25 +21,11 @@ type Database struct {
 var DatabaseSetting = &Database{}
 var config *ini.File
 
-func Setup() {
-	var err error
-	config, err = ini.Load("../../../config/app.ini")
-
-	if err != nil {
-		log.Fatal(err)
-	}
-	mapTo("database", DatabaseSetting)
-}
-func mapTo(name string, v interface{}) {
-	err := config.Section(name).MapTo(v)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-}
 func main() {
 	migrateSetting.Setup()
 	migrateModel.DBSetup()
 	migrateModel.DB.AutoMigrate(&models.Alphabet{})
+	migrateModel.DB.Migrator().DropTable(&models.Sentence{}, &models.Word{}, &models.Lesson{})
+	migrateModel.DB.AutoMigrate(&models.Sentence{}, &models.Word{}, &models.Lesson{})
 	fmt.Println("Hope all good :))")
 }
