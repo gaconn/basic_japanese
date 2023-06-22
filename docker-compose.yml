@@ -1,6 +1,17 @@
 version: '3.0'
 
 services:
+  base:
+    image: go-japanese
+    ports:
+      - 8000:8000
+    networks:
+      - host
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
   db: 
     image: mysql:latest
     environment:
@@ -12,7 +23,25 @@ services:
     restart: unless-stopped
     networks:
       - host
+  redis:
+    image: redis:7.0-alpine
+    ports:
+      - 6379:6379
+    command: redis-server --save 20 1 --loglevel warning --requirepass abcd1234
+    volumes:
+      - cache:/data
+    restart: always
+    networks:
+      - host
+  redis-gui:
+    image: redislabs/redisinsight:latest
+    ports:
+      - 8001:8001
+    networks:
+      - host
 networks:
   host:
 volumes:
   db-store:
+  cache:
+    driver: local

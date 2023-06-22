@@ -6,10 +6,12 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"log"
+	"time"
 )
 
 var db *gorm.DB
 var NumberRecordLimit = 30
+var retryNumber = 4
 
 func DBSetup() {
 	var err error
@@ -23,7 +25,15 @@ func DBSetup() {
 	)
 	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
-	if err != nil {
+	for err != nil {
 		log.Fatal(err)
+		if retryNumber > 1 {
+			log.Fatal("Trying to reconnect")
+			retryNumber--
+			time.Sleep(3)
+			db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+			continue
+		}
+		panic("Unable to connect database")
 	}
 }

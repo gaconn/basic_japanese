@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/quan12xz/basic_japanese/cache"
 	"github.com/quan12xz/basic_japanese/models"
 	"github.com/quan12xz/basic_japanese/pkg/setting"
 	"github.com/quan12xz/basic_japanese/routes"
@@ -13,6 +14,7 @@ import (
 func init() {
 	setting.Setup()
 	models.DBSetup()
+	cache.RedisSettup()
 }
 
 func main() {

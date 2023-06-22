@@ -37,6 +37,15 @@ type Database struct {
 
 var DatabaseSetting = &Database{}
 
+type Redis struct {
+	Host     string
+	Port     string
+	User     string
+	Password string
+	Name     string
+}
+
+var RedisSetting = &Redis{}
 var config *ini.File
 
 func Setup() {
@@ -49,6 +58,7 @@ func Setup() {
 	mapTo("app", AppSetting)
 	mapTo("server", ServerSetting)
 	mapTo("database", DatabaseSetting)
+	mapTo("redis", RedisSetting)
 	ServerSetting.WriteTimeout = ServerSetting.WriteTimeout * time.Second
 	ServerSetting.ReadTimeout = ServerSetting.ReadTimeout * time.Second
 }
