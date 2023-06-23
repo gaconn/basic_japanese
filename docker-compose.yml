@@ -2,13 +2,15 @@ version: '3.0'
 
 services:
   base:
-    image: go-japanese
+    build:
+      context: ./docker/base/
+      dockerfile: .
     ports:
       - 8000:8000
     networks:
       - host
     volumes:
-      - .:/app
+      - ./:/basic_japanese
     depends_on:
       - db
       - redis
@@ -28,6 +30,9 @@ services:
     ports:
       - 6379:6379
     command: redis-server --save 20 1 --loglevel warning --requirepass abcd1234
+    environment:
+      - HOSTNAME=redis
+      - REDIS_ARGS="--save 20 1 --loglevel warning --requirepass abcd1234"
     volumes:
       - cache:/data
     restart: always

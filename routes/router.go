@@ -24,6 +24,6 @@ func InitRouter() *gin.Engine {
 		lessonGroup.PUT("/", controller.UpdateLesson)
 		lessonGroup.DELETE("/:id", controller.DeleteLesson)
 	}
-
+	r.GET("/checkcache", controller.CheckCache)
 	return r
 }
