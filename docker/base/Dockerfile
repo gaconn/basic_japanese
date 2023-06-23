@@ -5,9 +5,10 @@ ENV PROJECT_DIR=/basic_japanese \
     GOOS=linux \
     GOARCH=amd64
 WORKDIR /basic_japanese
+RUN mkdir "/build"
+COPY ../.. .
 
-COPY . .
 RUN go mod download
 
 RUN go install -mod=mod github.com/githubnemo/CompileDaemon
-ENTRYPOINT CompileDaemon -build="go build" -command="./basic_japanese"
+ENTRYPOINT CompileDaemon -build="go build -o /build/app" -command="/build/app"

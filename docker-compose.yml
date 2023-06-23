@@ -3,8 +3,8 @@ version: '3.0'
 services:
   base:
     build:
-      context: ./docker/base/
-      dockerfile: .
+      context: .
+      dockerfile: ./docker/base/Dockerfile
     ports:
       - 8000:8000
     networks:

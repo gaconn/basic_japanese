@@ -36,10 +36,7 @@ func GetAllByType(r *gin.Context) {
 	err := alphabetRedisSetup.GetData(list)
 	// if data have in cache
 	if err == nil {
-		utils.SendResponse(r, 304, "Successfully", list)
-		return
-	} else {
-		utils.SendResponse(r, 304, "Successfully", err.Error())
+		utils.SendResponse(r, 305, "Successfully", list)
 		return
 	}
 
