@@ -5,13 +5,14 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Connect to server",
+            "name": "Remote Docker",
             "type": "go",
             "request": "attach",
             "mode": "remote",
-            "remotePath": "${workspaceFolder}",
+            "remotePath": "/go/basic_japanese",
             "port": 8000,
-            "host": "127.0.0.1"
+            "host": "127.0.0.1",
+            "trace": "verbose",
         }
     ]
 }

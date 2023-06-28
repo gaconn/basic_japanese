@@ -5,12 +5,17 @@ services:
     build:
       context: .
       dockerfile: ./docker/base/Dockerfile
+      target: debug
     ports:
       - 8000:8000
+      - 4040:4040
     networks:
       - host
     volumes:
-      - ./:/basic_japanese
+      - ./:/go/basic_japanese
+      - ./build:/build
+    security_opt:
+      - "seccomp:unconfined"
     depends_on:
       - db
       - redis
@@ -29,13 +34,11 @@ services:
     image: redis:7.0-alpine
     ports:
       - 6379:6379
-    command: redis-server --save 20 1 --loglevel warning --requirepass abcd1234
     environment:
       - HOSTNAME=redis
       - REDIS_ARGS="--save 20 1 --loglevel warning --requirepass abcd1234"
     volumes:
       - cache:/data
-    restart: always
     networks:
       - host
   redis-gui:

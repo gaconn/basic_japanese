@@ -1,20 +1,19 @@
 package cache
 
 import (
-	"context"
 	"encoding/json"
 	"time"
 )
 
 type RedisSetup struct {
-	Context    context.Context
 	Key        string
 	Value      interface{}
 	ExpireTime time.Duration
 }
 
 func (r *RedisSetup) GetData(object interface{}) error {
-	res, err := RedisClient.Get(r.Context, r.Key).Result()
+	redisClientInstance := GetInstance()
+	res, err := redisClientInstance.RedisClient.Get(redisClientInstance.Context, r.Key).Result()
 
 	if err != nil {
 		return err
@@ -28,7 +27,8 @@ func (r *RedisSetup) GetData(object interface{}) error {
 }
 
 func (r *RedisSetup) SetData() error {
-	_, err := RedisClient.Set(r.Context, r.Key, r.Value, r.ExpireTime).Result()
+	redisClientInstance := GetInstance()
+	_, err := redisClientInstance.RedisClient.Set(redisClientInstance.Context, r.Key, r.Value, r.ExpireTime).Result()
 
 	if err != nil {
 		return err
@@ -37,10 +37,21 @@ func (r *RedisSetup) SetData() error {
 }
 
 func (r *RedisSetup) DeleteData() error {
-	_, err := RedisClient.Del(r.Context, r.Key).Result()
+	redisClientInstance := GetInstance()
+	_, err := redisClientInstance.RedisClient.Del(redisClientInstance.Context, r.Key).Result()
 
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+func (r *RedisSetup) GetDataTest() string {
+	redisClientInstance := GetInstance()
+	result, err := redisClientInstance.RedisClient.Get(redisClientInstance.Context, r.Key).Result()
+
+	if err != nil {
+		return err.Error()
+	}
+	return result
 }

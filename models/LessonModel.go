@@ -14,7 +14,7 @@ type Lesson struct {
 func (l *Lesson) GetLessons(page int) (*[]Lesson, error) {
 	var list []Lesson
 	offset := (page - 1) * NumberRecordLimit
-	result := db.Limit(NumberRecordLimit).Offset(offset).Find(&list)
+	result := GetInstance().DB.Limit(NumberRecordLimit).Offset(offset).Find(&list)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -23,7 +23,7 @@ func (l *Lesson) GetLessons(page int) (*[]Lesson, error) {
 }
 
 func (l *Lesson) GetLesson(id int) error {
-	result := db.Where("id=?", id).First(l)
+	result := GetInstance().DB.Where("id=?", id).First(l)
 
 	if result.Error != nil {
 		return result.Error
@@ -32,7 +32,7 @@ func (l *Lesson) GetLesson(id int) error {
 }
 
 func (l *Lesson) AddLesson() error {
-	result := db.Create(l)
+	result := GetInstance().DB.Create(l)
 
 	if result.Error != nil {
 		return result.Error
@@ -41,7 +41,7 @@ func (l *Lesson) AddLesson() error {
 }
 
 func (l *Lesson) DeleteLessons(list []*Lesson) error {
-	result := db.Delete(list)
+	result := GetInstance().DB.Delete(list)
 
 	if result.Error != nil {
 		return result.Error
@@ -50,7 +50,7 @@ func (l *Lesson) DeleteLessons(list []*Lesson) error {
 }
 
 func (l *Lesson) UpdateLessons(id uint) error {
-	result := db.Model(&Lesson{}).Where("id=?", id).Updates(l)
+	result := GetInstance().DB.Model(&Lesson{}).Where("id=?", id).Updates(l)
 
 	if result.Error != nil {
 		return result.Error

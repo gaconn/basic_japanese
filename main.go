@@ -2,19 +2,16 @@ package main
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/quan12xz/basic_japanese/cache"
-	"github.com/quan12xz/basic_japanese/models"
-	"github.com/quan12xz/basic_japanese/pkg/setting"
-	"github.com/quan12xz/basic_japanese/routes"
 	"log"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/quan12xz/basic_japanese/pkg/setting"
+	"github.com/quan12xz/basic_japanese/routes"
 )
 
 func init() {
 	setting.Setup()
-	models.DBSetup()
-	cache.RedisSettup()
 }
 
 func main() {
@@ -32,7 +29,7 @@ func main() {
 		WriteTimeout:   writeTimeout,
 		MaxHeaderBytes: maxHeaderByte,
 	}
-	log.Printf("[info] start http listening on port %d", endPoint)
+	log.Printf("[info] start http listening on port %s", endPoint)
 	if err := server.ListenAndServe(); err != nil {
 		log.Fatal(err)
 	}

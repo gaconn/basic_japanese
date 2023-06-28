@@ -1,25 +1,29 @@
 package controller
 
 import (
-	"context"
 	"encoding/json"
-	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/quan12xz/basic_japanese/cache"
-	"github.com/quan12xz/basic_japanese/models"
-	"github.com/quan12xz/basic_japanese/utils"
 	"log"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/quan12xz/basic_japanese/cache"
+	"github.com/quan12xz/basic_japanese/models"
+	"github.com/quan12xz/basic_japanese/utils"
+	"github.com/redis/go-redis/v9"
 )
 
 var TypeWord = map[string]int{"HIRAGANA": 1, "HIRAGANA_COMBINE": 11, "KATAKANA": 2, "KATAKANA_COMBINE": 22, "KANJI": 3}
-var alphabetRedisSetup = cache.RedisSetup{
-	Context:    context.Background(),
-	ExpireTime: time.Duration(time.Minute),
-}
+var (
+	ALPHABET_CACHE_KEY_BY_TYPE = "alphabet_cache_key_%s_%s"
+)
 
+/*
+*
+
+	Key caching:
+*/
 func GetAllByType(r *gin.Context) {
 	strType := strings.ToUpper(r.Param("type"))
 	intType, ok := TypeWord[strType]
@@ -30,13 +34,25 @@ func GetAllByType(r *gin.Context) {
 	}
 
 	// handle cache
-	key, _ := cache.GenerateKey(r.Request.URL.Path, strType)
+	var alphabetRedisSetup = cache.RedisSetup{
+		ExpireTime: time.Duration(time.Minute),
+	}
+	key, _ := cache.GenerateKey(r.Request.URL.Path)
 	alphabetRedisSetup.Key = key
-	var list *[]models.Alphabet
+
+	var list *[]models.Alphabet = &[]models.Alphabet{}
 	err := alphabetRedisSetup.GetData(list)
 	// if data have in cache
-	if err == nil {
-		utils.SendResponse(r, 305, "Successfully", list)
+	if err != nil && err != redis.Nil {
+		//test
+		// var res string
+		// res = alphabetRedisSetup.GetDataTest()
+		// utils.SendResponse(r, 306, "Successfully", res)
+		// return
+		utils.SendResponse(r, 305, "Successfully", err.Error())
+		return
+	} else if err == nil {
+		utils.SendResponse(r, 200, "Successfully", list, true)
 		return
 	}
 
@@ -63,17 +79,39 @@ func GetAllByType(r *gin.Context) {
 func GetByID(r *gin.Context) {
 	strID := r.Param("id")
 	intID, err := strconv.ParseInt(strID, 10, 64)
-	fmt.Print("successfully")
+
 	if err != nil {
 		utils.SendResponse(r, 400, "ID invalid", nil)
 		return
 	}
+
+	//Generate key for process caching
+	key, _ := cache.GenerateKey(r.Request.URL.Path, strID)
+
+	// Lấy dữ liệu trong cache
+	var alphabetRedisSetup = cache.RedisSetup{
+		ExpireTime: time.Duration(time.Minute),
+		Key:        key,
+	}
+
+	item := &models.Alphabet{}
+	err = alphabetRedisSetup.GetData(item)
+	if err == nil {
+		utils.SendResponse(r, 200, "Successfully", item, true)
+		return
+	}
+
+	// Get data from database if not cache yet
 	result, err := models.GetWordByID(intID)
 
 	if err != nil {
 		utils.SendResponse(r, 400, "Unsuccessfully", nil)
 		return
 	}
+
+	// caching data if success
+	alphabetRedisSetup.Value = result
+	alphabetRedisSetup.SetData()
 	utils.SendResponse(r, 200, "Successfully", result)
 }
 
@@ -93,15 +131,4 @@ func Update(r *gin.Context) {
 		return
 	}
 	utils.SendResponse(r, 200, "Successfully", result)
-}
-
-func CheckCache(c *gin.Context) {
-	cache.RedisSettup()
-	stt := cache.RedisClient.Set(context.Background(), "test", "successfully", time.Duration(time.Minute))
-	_, err := stt.Result()
-	if err != nil {
-		utils.SendResponse(c, 400, "Unsuccessfully", err.Error())
-		return
-	}
-	utils.SendResponse(c, 200, "Successfully.", c.Request.URL.Path)
 }

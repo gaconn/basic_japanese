@@ -12,7 +12,7 @@ type Sentence struct {
 
 func (s *Sentence) GetSentences(page int) ([]*Sentence, error) {
 	var list []*Sentence
-	result := db.Offset(page * NumberRecordLimit).Limit(NumberRecordLimit).Find(list)
+	result := GetInstance().DB.Offset(page * NumberRecordLimit).Limit(NumberRecordLimit).Find(list)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -21,7 +21,7 @@ func (s *Sentence) GetSentences(page int) ([]*Sentence, error) {
 }
 
 func (s *Sentence) GetSentence(id int) error {
-	result := db.Where("id=?", id).First(s)
+	result := GetInstance().DB.Where("id=?", id).First(s)
 
 	if result.Error != nil {
 		return result.Error
@@ -30,7 +30,7 @@ func (s *Sentence) GetSentence(id int) error {
 }
 
 func (s *Sentence) AddSentences(list []*Sentence) error {
-	result := db.Create(list)
+	result := GetInstance().DB.Create(list)
 
 	if result.Error != nil {
 		return result.Error
@@ -39,7 +39,7 @@ func (s *Sentence) AddSentences(list []*Sentence) error {
 }
 
 func (s *Sentence) DeleteSentences(list []*Sentence) error {
-	result := db.Delete(list)
+	result := GetInstance().DB.Delete(list)
 
 	if result.Error != nil {
 		return result.Error
@@ -48,7 +48,7 @@ func (s *Sentence) DeleteSentences(list []*Sentence) error {
 }
 
 func (s *Sentence) UpdateSentences(id int) error {
-	result := db.Model(&Sentence{}).Where("id=?", id).Updates(s)
+	result := GetInstance().DB.Model(&Sentence{}).Where("id=?", id).Updates(s)
 
 	if result.Error != nil {
 		return result.Error

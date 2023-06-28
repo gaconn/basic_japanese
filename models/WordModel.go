@@ -14,7 +14,7 @@ type Word struct {
 
 func (w *Word) GetWords(page int) ([]*Word, error) {
 	var list []*Word
-	result := db.Offset(page * NumberRecordLimit).Limit(NumberRecordLimit).Find(list)
+	result := GetInstance().DB.Offset(page * NumberRecordLimit).Limit(NumberRecordLimit).Find(list)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -23,7 +23,7 @@ func (w *Word) GetWords(page int) ([]*Word, error) {
 }
 
 func (w *Word) GetWord(id int) error {
-	result := db.Where("id=?", id).First(w)
+	result := GetInstance().DB.Where("id=?", id).First(w)
 
 	if result.Error != nil {
 		return result.Error
@@ -32,7 +32,7 @@ func (w *Word) GetWord(id int) error {
 }
 
 func (w *Word) AddWords(list []*Word) error {
-	result := db.Create(list)
+	result := GetInstance().DB.Create(list)
 
 	if result.Error != nil {
 		return result.Error
@@ -41,7 +41,7 @@ func (w *Word) AddWords(list []*Word) error {
 }
 
 func (w *Word) DeleteWords(list []*Word) error {
-	result := db.Delete(list)
+	result := GetInstance().DB.Delete(list)
 
 	if result.Error != nil {
 		return result.Error
@@ -50,7 +50,7 @@ func (w *Word) DeleteWords(list []*Word) error {
 }
 
 func (w *Word) UpdateWord(id int) error {
-	result := db.Model(&Word{}).Where("id=?", id).Updates(w)
+	result := GetInstance().DB.Model(&Word{}).Where("id=?", id).Updates(w)
 
 	if result.Error != nil {
 		return result.Error
