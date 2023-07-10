@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/redis/go-redis/v9"
+	"log"
 
 	"github.com/quan12xz/basic_japanese/pkg/setting"
-	"github.com/redis/go-redis/v9"
 )
 
 type redisClient struct {
@@ -34,14 +35,12 @@ func redisSettup() *redis.Client {
 	return redisClient
 }
 
-func GenerateKey(input ...string) (string, error) {
-	var key string
-	for _, value := range input {
-		if value == "" {
-			return "", errors.New("invalid parameter to generate key")
-		}
+func GenerateKey(pattern string, input ...any) string {
+	key := fmt.Sprintf(pattern, input...)
 
-		key += value
+	if key == "" {
+		log.Fatal(errors.New("Key invalid"))
 	}
-	return key, nil
+	return key
+
 }

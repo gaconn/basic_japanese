@@ -2,6 +2,7 @@ package controller
 
 import (
 	"encoding/json"
+	"github.com/redis/go-redis/v9"
 	"log"
 	"strconv"
 	"strings"
@@ -11,19 +12,13 @@ import (
 	"github.com/quan12xz/basic_japanese/cache"
 	"github.com/quan12xz/basic_japanese/models"
 	"github.com/quan12xz/basic_japanese/utils"
-	"github.com/redis/go-redis/v9"
 )
 
 var TypeWord = map[string]int{"HIRAGANA": 1, "HIRAGANA_COMBINE": 11, "KATAKANA": 2, "KATAKANA_COMBINE": 22, "KANJI": 3}
-var (
-	ALPHABET_CACHE_KEY_BY_TYPE = "alphabet_cache_key_%s_%s"
-)
 
-/*
-*
+const ALPHABET_KEY_CACHE_BY_TYPE_FORMAT = "alphabet_key_cache_by_type_%s"
+const ALPHABET_KEY_CACHE_BY_ID_FORMAT = "alphabe_key_cache_by_id_%s"
 
-	Key caching:
-*/
 func GetAllByType(r *gin.Context) {
 	strType := strings.ToUpper(r.Param("type"))
 	intType, ok := TypeWord[strType]
@@ -37,7 +32,7 @@ func GetAllByType(r *gin.Context) {
 	var alphabetRedisSetup = cache.RedisSetup{
 		ExpireTime: time.Duration(time.Minute),
 	}
-	key, _ := cache.GenerateKey(r.Request.URL.Path)
+	key := cache.GenerateKey(ALPHABET_KEY_CACHE_BY_TYPE_FORMAT, strType)
 	alphabetRedisSetup.Key = key
 
 	var list *[]models.Alphabet = &[]models.Alphabet{}
@@ -85,17 +80,7 @@ func GetByID(r *gin.Context) {
 		return
 	}
 
-	//Generate key for process caching
-	key, _ := cache.GenerateKey(r.Request.URL.Path, strID)
-
-	// Lấy dữ liệu trong cache
-	var alphabetRedisSetup = cache.RedisSetup{
-		ExpireTime: time.Duration(time.Minute),
-		Key:        key,
-	}
-
 	item := &models.Alphabet{}
-	err = alphabetRedisSetup.GetData(item)
 	if err == nil {
 		utils.SendResponse(r, 200, "Successfully", item, true)
 		return
@@ -109,9 +94,6 @@ func GetByID(r *gin.Context) {
 		return
 	}
 
-	// caching data if success
-	alphabetRedisSetup.Value = result
-	alphabetRedisSetup.SetData()
 	utils.SendResponse(r, 200, "Successfully", result)
 }
 
@@ -130,5 +112,14 @@ func Update(r *gin.Context) {
 		utils.SendResponse(r, 400, "Unsuccessfully", nil)
 		return
 	}
+	ClearCache(cache.RedisSetup{})
 	utils.SendResponse(r, 200, "Successfully", result)
+}
+
+func ClearCache(cache cache.RedisSetup) {
+	var arrKey []string
+	for key, _ := range TypeWord {
+		arrKey = append(arrKey, key)
+	}
+	cache.ClearCache(arrKey...)
 }

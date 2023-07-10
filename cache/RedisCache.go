@@ -55,3 +55,12 @@ func (r *RedisSetup) GetDataTest() string {
 	}
 	return result
 }
+
+func (r *RedisSetup) ClearCache(key ...string) error {
+	redisInstance := GetInstance()
+	_, err := redisInstance.RedisClient.Del(redisInstance.Context, key...).Result()
+	if err != nil {
+		return err
+	}
+	return nil
+}
